@@ -2,38 +2,10 @@ import { useEffect, useState } from "react";
 import { Weight } from "@/types/Weight";
 
 interface WeightCardProps {
-  weights_id: string;
+  weight: Weight;
 }
 
-export function WeightCard({ weights_id }: WeightCardProps) {
-  const [weight, setWeight] = useState<Weight | null>(null);
-  const [isLoading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!weights_id) return;
-
-    const fetchWeight = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/weights/${weights_id}`
-        );
-        if (!response.ok) throw new Error("Failed to fetch weight");
-        const data: Weight = await response.json();
-        setWeight(data);
-      } catch (error) {
-        console.error("Error fetching weight:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWeight();
-  }, [weights_id]);
-
-  if (isLoading) return <div className="text-center py-4">Loading...</div>;
-  if (!weight)
-    return <div className="text-center py-4">No weight data available</div>;
-
+export function WeightCard({ weight }: WeightCardProps) {
   return (
     <div className="w-full p-6 bg-white shadow-lg rounded-lg border border-gray-200 space-y-4">
       <h1 className="text-xl font-bold">{weight.weight_unique_identifier}</h1>
@@ -61,7 +33,7 @@ export function WeightCard({ weights_id }: WeightCardProps) {
         <p>
           <strong>Likes:</strong> {weight.likes}
         </p>
-        {weight.public_link && weight.is_uploaded && (
+        {weight.is_uploaded && weight.public_link && (
           <p>
             <strong>Public Link:</strong>{" "}
             <a

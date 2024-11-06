@@ -13,7 +13,7 @@ export interface Weight {
   likes: number;
   public_link?: string;
   architecture: string;
-  creator?: User; // Relates to User
+  creator?: string; // Relates to User
   combines_with?: Weight[]; // Array of Weight, combines with
   combined_into?: Weight[]; // Array of Weight, combined into
   evaluated_on?: Dataset[]; // Array of Dataset, evaluated on

@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
 import { Weight } from "@/types/Weight";
 
 interface WeightCardProps {
   weight: Weight;
 }
 
-export function WeightCard({ weight }: WeightCardProps) {
+export function ExtendedWeightCard({ weight }: WeightCardProps) {
   return (
     <div className="w-full p-6 bg-white shadow-lg rounded-lg border border-gray-200 space-y-4">
       <h1 className="text-xl font-bold">{weight.weight_unique_identifier}</h1>
@@ -44,6 +43,12 @@ export function WeightCard({ weight }: WeightCardProps) {
             >
               Access Here
             </a>
+          </p>
+        )}
+        {weight.creator && (
+          <p>
+            <strong> Owner: </strong>
+            {weight.creator}
           </p>
         )}
       </div>

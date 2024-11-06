@@ -1,7 +1,4 @@
-import { useEffect, useState } from "react";
 import { Dataset } from "@/types/Dataset";
-import { DatasetEvaluation } from "@/types/DatasetEvaluation";
-
 interface DatasetCardProps {
   dataset: Dataset;
 }
@@ -23,7 +20,7 @@ export function DatasetCard({ dataset }: DatasetCardProps) {
         </p>
         {dataset.owner && (
           <p>
-            <strong>Owner:</strong> {dataset.owner.username}
+            <strong>Owner:</strong> {dataset.owner}
           </p>
         )}
         {dataset.is_public && dataset.public_link && (
@@ -37,6 +34,11 @@ export function DatasetCard({ dataset }: DatasetCardProps) {
             >
               Access Here
             </a>
+          </p>
+        )}
+        {dataset.class_labels && dataset.class_labels.length > 0 && (
+          <p>
+            <strong>Class Labels:</strong> {dataset.class_labels.join(", ")}
           </p>
         )}
       </div>

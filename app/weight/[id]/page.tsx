@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import { Weight } from "@/types/Weight";
 import { Dataset } from "@/types/Dataset";
 import { Owner } from "@/types/Owner";
-import { DatasetEvaluation } from "@/types/DatasetEvaluation";
+import { Evaluation } from "@/types/DatasetEvaluation";
 import { EvaluationCard } from "@/components/Dataset/EvaluationCard";
 import { DatasetCard } from "@/components/Dataset/DatasetCard";
 import { DatasetEvaluationChart } from "@/components/Dataset/DatasetEvaluationChart";
-import { CompactWeightCard } from "@/components/Weight/WeightCard/Compact";
+
 export default function Page() {
   const params = useParams();
   const weights_id = params?.id as string;
@@ -19,7 +19,7 @@ export default function Page() {
   const [datasetsLoading, setDatasetsLoading] = useState(true);
   const [evaluationLoading, setEvaluationLoading] = useState(false);
   const [datasets, setDatasets] = useState<Dataset[]>([]);
-  const [evaluation, setEvaluation] = useState<DatasetEvaluation | null>(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
   const handleDatasetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
@@ -60,7 +60,7 @@ export default function Page() {
   const fetchOwner = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/weights/owner/${weights_id}`
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/weights/${weights_id}/user`
       );
       if (!response.ok) throw new Error("Failed to fetch owner");
 
@@ -88,7 +88,7 @@ export default function Page() {
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/weights/evaluation/${weights_id}/${dataset_id}`
       );
       if (!response.ok) throw new Error("Failed to fetch performance");
-      const data: DatasetEvaluation = await response.json();
+      const data: Evaluation = await response.json();
       setEvaluation(data);
     } catch (error) {
       console.error("Error fetching performance:", error);
@@ -120,7 +120,6 @@ export default function Page() {
   return (
     <div className="px-6 space-y-4">
       <h1 className="text-xl font-bold text-center">Weight Information</h1>
-      <CompactWeightCard weight={weight} />
       <ExtendedWeightCard weight={weight} />
       <div className="flex justify-between">
         <button className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600">

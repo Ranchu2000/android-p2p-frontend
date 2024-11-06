@@ -69,13 +69,7 @@ export default function Page() {
 
       <div className="space-y-4">
         {sortedWeights.map((weight) => (
-          <Link
-            key={weight.weight_unique_identifier}
-            href={`/weight/${weight.weight_unique_identifier}`}
-            className="block hover:bg-gray-100 transition duration-150 ease-in-out rounded-lg"
-          >
-            <CompactWeightCard weight={weight} />
-          </Link>
+          <CompactWeightCard weight={weight} />
         ))}
       </div>
     </div>

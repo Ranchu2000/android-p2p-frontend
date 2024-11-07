@@ -77,7 +77,9 @@ export default function UserPage() {
         <h2 className="text-xl font-semibold mb-4">Owned Datasets</h2>
         <div className="space-y-4">
           {userDataset.length > 0 ? (
-            userDataset.map((dataset) => <DatasetCard dataset={dataset} />)
+            userDataset.map((dataset) => (
+              <DatasetCard key={dataset.uniqueIdentifier} dataset={dataset} />
+            ))
           ) : (
             <p>No datasets available.</p>
           )}

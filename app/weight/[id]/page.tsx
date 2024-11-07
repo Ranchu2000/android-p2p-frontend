@@ -1,5 +1,5 @@
 "use client";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ExtendedWeightCard } from "@/components/Weight/WeightCard/Extended";
 import { useEffect, useState } from "react";
 import { Weight } from "@/types/Weight";
@@ -8,7 +8,7 @@ import { Owner } from "@/types/Owner";
 import { Evaluation } from "@/types/DatasetEvaluation";
 import { EvaluationCard } from "@/components/Dataset/EvaluationCard";
 import { DatasetCard } from "@/components/Dataset/DatasetCard";
-import { DatasetEvaluationChart } from "@/components/Dataset/DatasetEvaluationChart";
+import { SingleChart } from "@/components/Dataset/DatasetEvaluationChart/Single";
 
 export default function Page() {
   const params = useParams();
@@ -28,6 +28,10 @@ export default function Page() {
         ? null
         : datasets.find((ds) => ds.uniqueIdentifier === value) || null;
     setSelectedDataset(dataset);
+  };
+  const router = useRouter();
+  const handleViewHistory = () => {
+    router.push(`/weight/history/${weights_id}`);
   };
 
   const fetchDatasets = async () => {
@@ -122,7 +126,10 @@ export default function Page() {
       <h1 className="text-xl font-bold text-center">Weight Information</h1>
       <ExtendedWeightCard weight={weight} />
       <div className="flex justify-between">
-        <button className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600">
+        <button
+          onClick={handleViewHistory}
+          className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600"
+        >
           View History
         </button>
         <button className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600">
@@ -130,7 +137,7 @@ export default function Page() {
         </button>
       </div>
       <div className="space-y-2">
-        <label className="font-semibold">Dataset:</label>
+        <label className="font-semibold">Dataset: </label>
         <select
           className="border border-gray-300 rounded-lg py-1 px-2"
           onChange={handleDatasetChange}
@@ -157,10 +164,7 @@ export default function Page() {
               <DatasetCard dataset={selectedDataset} />
               <EvaluationCard evaluation={evaluation} />
             </div>
-            <DatasetEvaluationChart
-              dataset={selectedDataset}
-              evaluation={evaluation}
-            />
+            <SingleChart dataset={selectedDataset} evaluation={evaluation} />
           </div>
         )}
       </div>

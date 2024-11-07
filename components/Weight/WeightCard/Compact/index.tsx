@@ -7,7 +7,6 @@ interface CompactWeightCardProps {
 export function CompactWeightCard({ weight }: CompactWeightCardProps) {
   return (
     <Link
-      key={weight.weight_unique_identifier}
       href={`/weight/${weight.weight_unique_identifier}`}
       className="block hover:bg-gray-100 transition duration-150 ease-in-out rounded-lg h-full"
     >

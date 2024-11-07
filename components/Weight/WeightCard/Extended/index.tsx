@@ -1,4 +1,5 @@
 import { Weight } from "@/types/Weight";
+import Link from "next/link";
 
 interface WeightCardProps {
   weight: Weight;
@@ -46,10 +47,14 @@ export function ExtendedWeightCard({ weight }: WeightCardProps) {
           </p>
         )}
         {weight.creator && (
-          <p>
-            <strong> Owner: </strong>
-            {weight.creator}
-          </p>
+          <div>
+            <strong>Owner: </strong>
+            <Link href={`/user/${weight.creator}`}>
+              <span className="text-blue-500 hover:underline cursor-pointer">
+                {weight.creator}
+              </span>
+            </Link>
+          </div>
         )}
       </div>
     </div>

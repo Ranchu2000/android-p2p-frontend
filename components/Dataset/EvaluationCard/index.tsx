@@ -1,7 +1,7 @@
-import { DatasetEvaluation } from "@/types/DatasetEvaluation";
+import { Evaluation } from "@/types/DatasetEvaluation";
 
 interface EvaluationCardProps {
-  evaluation: DatasetEvaluation;
+  evaluation: Evaluation;
 }
 export function EvaluationCard({ evaluation }: EvaluationCardProps) {
   return (

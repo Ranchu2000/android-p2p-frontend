@@ -69,7 +69,10 @@ export default function Page() {
 
       <div className="space-y-4">
         {sortedWeights.map((weight) => (
-          <CompactWeightCard weight={weight} />
+          <CompactWeightCard
+            key={weight.weight_unique_identifier}
+            weight={weight}
+          />
         ))}
       </div>
     </div>

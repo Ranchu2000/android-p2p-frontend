@@ -8,6 +8,7 @@ import { EvaluationCard } from "@/components/Dataset/EvaluationCard";
 import { DatasetCard } from "@/components/Dataset/DatasetCard";
 import { CompactWeightCard } from "@/components/Weight/WeightCard/Compact";
 import { Owner } from "@/types/Owner";
+import { MultipleChart } from "@/components/Dataset/DatasetEvaluationChart/Multiple";
 
 interface WeightEvaluation {
   weight: Weight;
@@ -106,6 +107,10 @@ export default function Page() {
   return (
     <div className="px-6 space-y-4">
       <DatasetCard dataset={dataset} />
+      <MultipleChart
+        weights={evaluation.map((e) => e.weight)}
+        evaluation={evaluation.map((e) => e.evaluation)}
+      />
       <div className="space-y-4">
         {evaluation.map((item, index) => (
           <div key={index} className="border p-4 rounded-lg shadow">

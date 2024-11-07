@@ -5,18 +5,17 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-  ResponsiveContainer,
   Legend,
 } from "recharts";
 import { Dataset } from "@/types/Dataset";
-import { DatasetEvaluation } from "@/types/DatasetEvaluation";
+import { Evaluation } from "@/types/DatasetEvaluation";
 
 interface PerformanceChartProps {
   dataset: Dataset;
-  evaluation: DatasetEvaluation;
+  evaluation: Evaluation;
 }
 
-export function DatasetEvaluationChart({
+export function SingleChart({
   dataset,
   evaluation,
 }: PerformanceChartProps) {
@@ -67,7 +66,12 @@ export function DatasetEvaluationChart({
         />
         <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
         <Legend />
-        <Bar dataKey="performance" fill="#F97316" name="Class Performance" radius={[4, 4, 0, 0]} />
+        <Bar
+          dataKey="performance"
+          fill="#F97316"
+          name="Class Performance"
+          radius={[4, 4, 0, 0]}
+        />
       </BarChart>
     </div>
   );

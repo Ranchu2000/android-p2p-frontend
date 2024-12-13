@@ -54,7 +54,7 @@ export default function Page() {
       const weightEvaluations = await Promise.all(
         data.map(async (weight) => {
           const evaluation = await fetchPerformance(
-            weight.weight_unique_identifier
+            weight.uniqueIdentifier
           );
           return {
             weight: weight,

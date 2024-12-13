@@ -3,7 +3,7 @@ import { User } from "./User";
 import { Dataset } from "./Dataset";
 
 export interface Weight {
-  weight_unique_identifier: string;
+  uniqueIdentifier: string;
   model_task: ModelTask; // Assuming ModelTask is an enum or type
   weight_size: number;
   description?: string;

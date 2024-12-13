@@ -91,7 +91,7 @@ export default function UserPage() {
           {userWeights.length > 0 ? (
             userWeights.map((weight) => (
               <CompactWeightCard
-                key={weight.weight_unique_identifier}
+                key={weight.uniqueIdentifier}
                 weight={weight}
               />
             ))

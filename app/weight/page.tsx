@@ -28,7 +28,7 @@ export default function Page() {
 
   // Filter weights based on search text
   const filteredWeights = weights.filter((weight) =>
-    weight.weight_unique_identifier
+    weight.uniqueIdentifier
       .toLowerCase()
       .includes(searchText.toLowerCase())
   );
@@ -70,7 +70,7 @@ export default function Page() {
       <div className="space-y-4">
         {sortedWeights.map((weight) => (
           <CompactWeightCard
-            key={weight.weight_unique_identifier}
+            key={weight.uniqueIdentifier}
             weight={weight}
           />
         ))}

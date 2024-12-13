@@ -1,5 +1,5 @@
 "use client";
-import { WeightTrace } from "@/components/Weight/WeightTrace";
+import WeightTrace from "@/components/Weight/WeightTrace";
 import { useParams } from "next/navigation";
 export default function Page() {
   const params = useParams();

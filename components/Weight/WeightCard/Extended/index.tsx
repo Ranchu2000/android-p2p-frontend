@@ -8,7 +8,7 @@ interface WeightCardProps {
 export function ExtendedWeightCard({ weight }: WeightCardProps) {
   return (
     <div className="w-full p-6 bg-white shadow-lg rounded-lg border border-gray-200 space-y-4">
-      <h1 className="text-xl font-bold">{weight.weight_unique_identifier}</h1>
+      <h1 className="text-xl font-bold">{weight.uniqueIdentifier}</h1>
       <div>
         <p>
           <strong>Model Task:</strong> {weight.model_task}

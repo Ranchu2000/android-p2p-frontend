@@ -28,7 +28,7 @@ export function MultipleChart({ weights, evaluation }: PerformanceChartProps) {
     );
 
   const data = sortedData.map(({ weight, evaluation }) => ({
-    uniqueId: weight.weight_unique_identifier,
+    uniqueId: weight.uniqueIdentifier,
     performance: (evaluation[metric] ?? 0) * 100,
   }));
 

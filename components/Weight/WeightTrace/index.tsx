@@ -1,13 +1,16 @@
 import { useEffect, useRef } from "react";
 import NeoVis from "neovis.js";
+import { useRouter } from "next/navigation";
+
 interface WeightTreeProps {
   weightId: string;
 }
-import { useRouter } from "next/navigation";
-export function WeightTrace({ weightId }: WeightTreeProps) {
+
+const WeightTrace = ({ weightId }: WeightTreeProps) => {
   const vizRef = useRef<HTMLDivElement>(null);
-  const vizInstanceRef = useRef<any>(null); // Store the NeoVis instance
+  const vizInstanceRef = useRef<any>(null);
   const router = useRouter();
+
   const generateTooltip = (relationship: any) => {
     let titleString = "Properties:\n";
     if (relationship.properties) {
@@ -20,11 +23,10 @@ export function WeightTrace({ weightId }: WeightTreeProps) {
 
   const renderVisualization = () => {
     if (!weightId || !vizRef.current) return;
-
     const config = {
       containerId: vizRef.current.id,
       neo4j: {
-        serverUrl: "bolt://localhost:7687",
+        serverUrl: "bolt://192.168.1.5:7687", //"bolt://localhost:7687",
         serverUser: "neo4j",
         serverPassword: "wongyufei",
       },
@@ -58,7 +60,7 @@ export function WeightTrace({ weightId }: WeightTreeProps) {
           },
         },
         Weight: {
-          label: "weight_unique_identifier",
+          label: "uniqueIdentifier",
           [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
             static: {
               group: "weight",
@@ -120,30 +122,29 @@ export function WeightTrace({ weightId }: WeightTreeProps) {
         },
       },
       initialCypher: `
-      OPTIONAL MATCH path = (n)-[r*]->(w:Weight {weight_unique_identifier: '${weightId}'})
+      OPTIONAL MATCH path = (n)-[r*]->(w:Weight {uniqueIdentifier: '${weightId}'})
       WITH nodes(path) AS nodes, relationships(path) AS relationships
       RETURN nodes, relationships
       UNION
-      MATCH (w:Weight {weight_unique_identifier: '${weightId}'})
+      MATCH (w:Weight {uniqueIdentifier: '${weightId}'})
       RETURN [w] AS nodes, [] AS relationships
     `,
     };
 
     vizInstanceRef.current = new NeoVis(config);
     vizInstanceRef.current.render();
+
     vizInstanceRef.current?.registerOnEvent("clickNode", (event: any) => {
       const node = event.node.raw;
       const labels = node.labels;
-      const nodeLabel =
-        node.properties.weight_unique_identifier ||
-        node.properties.uniqueIdentifier;
+      const nodeLabel = node.properties.uniqueIdentifier;
+      const network = vizInstanceRef.current.network;
+      network.fit({ scale: 1 });
 
       if (labels.includes("Weight") && nodeLabel) {
         router.push(`/weight/${nodeLabel}`);
       } else if (labels.includes("Dataset") && nodeLabel) {
         router.push(`/dataset/${nodeLabel}`);
-      } else {
-        console.warn("Unknown node type or missing label:", labels);
       }
     });
   };
@@ -151,39 +152,19 @@ export function WeightTrace({ weightId }: WeightTreeProps) {
   useEffect(() => {
     renderVisualization();
     return () => {
-      if (vizInstanceRef.current) {
-        vizInstanceRef.current.clearNetwork();
-      }
+      vizInstanceRef.current?.clearNetwork();
     };
   }, [weightId]);
 
   return (
     <div>
-      <div className="flex justify-center space-x-6 mb-6">
-        <div className="flex items-center space-x-2">
-          <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-          <span className="text-gray-700">Dataset</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-          <span className="text-gray-700">Weight</span>
-        </div>
-        {/* <div className="flex items-center space-x-2">
-          <span className="w-3 h-3 bg-purple-600 rounded-full"></span>
-          <span className="text-gray-700">User</span>
-        </div> */}
-      </div>
       <div
         id="viz"
         ref={vizRef}
-        style={{
-          width: "900px",
-          height: "700px",
-          border: "1px solid #dcdcdc",
-          borderRadius: "5px",
-          margin: "20px auto",
-        }}
+        style={{ width: "900px", height: "700px" }}
       ></div>
     </div>
   );
-}
+};
+
+export default WeightTrace; // Export as default

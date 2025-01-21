@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useRef } from "react";
-import NeoVis from "neovis.js";
+import NeoVis, { NeovisConfig } from "neovis.js";
 import { useRouter } from "next/navigation";
 
 interface WeightTreeProps {
@@ -25,12 +25,16 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
 
   const renderVisualization = () => {
     if (!weightId || !vizRef.current) return;
-    const config = {
+    const config: NeovisConfig = {
       containerId: vizRef.current.id,
       neo4j: {
         serverUrl: process.env.NEXT_PUBLIC_NEO4J_SERVER_URL,
         serverUser: process.env.NEXT_PUBLIC_NEO4J_SERVER_USER,
         serverPassword: process.env.NEXT_PUBLIC_NEO4J_SERVER_PASSWORD,
+        driverConfig: {
+          encrypted: "ENCRYPTION_ON",
+          trust: "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES",
+        },
       },
       visConfig: {
         nodes: {
@@ -44,15 +48,6 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
         },
       },
       labels: {
-        // User: {
-        //   label: "username",
-        //   [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
-        //     static: {
-        //       group: "user",
-        //       color: "#8e44ad",
-        //     },
-        //   },
-        // },
         Dataset: {
           label: "uniqueIdentifier",
           [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
@@ -127,28 +122,15 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
         },
       },
       initialCypher: `OPTIONAL MATCH path = (n)-[r*1..]->(w:Weight {uniqueIdentifier: '${weightId}'})
-WITH DISTINCT nodes(path) AS nodes, relationships(path) AS relationships
-RETURN nodes, relationships
-UNION
-MATCH (w:Weight {uniqueIdentifier: '${weightId}'})
-RETURN [w] AS nodes, [] AS relationships
-    `,
+        WITH DISTINCT nodes(path) AS nodes, relationships(path) AS relationships
+        RETURN nodes, relationships
+        UNION
+        MATCH (w:Weight {uniqueIdentifier: '${weightId}'})
+        RETURN [w] AS nodes, [] AS relationships`,
     };
 
     vizInstanceRef.current = new NeoVis(config);
     vizInstanceRef.current.render();
-
-    vizInstanceRef.current.registerOnEvent("completed", () => {
-      console.log(
-        "Nodes:",
-        vizInstanceRef.current.network.body.data.nodes.get()
-      );
-      console.log(
-        "Edges:",
-        vizInstanceRef.current.network.body.data.edges.get()
-      );
-    });
-
     vizInstanceRef.current?.registerOnEvent("clickNode", (event: any) => {
       const node = event.node.raw;
       const labels = node.labels;

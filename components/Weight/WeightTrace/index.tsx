@@ -26,13 +26,14 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
     const config = {
       containerId: vizRef.current.id,
       neo4j: {
-        serverUrl: "bolt://192.168.1.5:7687", //"bolt://localhost:7687",
-        serverUser: "neo4j",
-        serverPassword: "wongyufei",
+        serverUrl: process.env.NEXT_PUBLIC_NEO4J_SERVER_URL,
+        serverUser: process.env.NEXT_PUBLIC_NEO4J_SERVER_USER,
+        serverPassword: process.env.NEXT_PUBLIC_NEO4J_SERVER_PASSWORD,
       },
       visConfig: {
         nodes: {
-          shape: "circle",
+          shape: "dot",
+          size: 10,
         },
         edges: {
           arrows: {
@@ -56,6 +57,7 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
             static: {
               group: "dataset",
               color: "#3498db",
+              size: 10,
             },
           },
         },
@@ -65,6 +67,7 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
             static: {
               group: "weight",
               color: "#e74c3c",
+              size: 10,
             },
           },
         },
@@ -121,18 +124,28 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
           },
         },
       },
-      initialCypher: `
-      OPTIONAL MATCH path = (n)-[r*]->(w:Weight {uniqueIdentifier: '${weightId}'})
-      WITH nodes(path) AS nodes, relationships(path) AS relationships
-      RETURN nodes, relationships
-      UNION
-      MATCH (w:Weight {uniqueIdentifier: '${weightId}'})
-      RETURN [w] AS nodes, [] AS relationships
+      initialCypher: `OPTIONAL MATCH path = (n)-[r*1..]->(w:Weight {uniqueIdentifier: '${weightId}'})
+WITH DISTINCT nodes(path) AS nodes, relationships(path) AS relationships
+RETURN nodes, relationships
+UNION
+MATCH (w:Weight {uniqueIdentifier: '${weightId}'})
+RETURN [w] AS nodes, [] AS relationships
     `,
     };
 
     vizInstanceRef.current = new NeoVis(config);
     vizInstanceRef.current.render();
+
+    vizInstanceRef.current.registerOnEvent("completed", () => {
+      console.log(
+        "Nodes:",
+        vizInstanceRef.current.network.body.data.nodes.get()
+      );
+      console.log(
+        "Edges:",
+        vizInstanceRef.current.network.body.data.edges.get()
+      );
+    });
 
     vizInstanceRef.current?.registerOnEvent("clickNode", (event: any) => {
       const node = event.node.raw;

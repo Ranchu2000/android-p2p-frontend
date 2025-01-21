@@ -1,7 +1,8 @@
 "use client";
+
 import { useParams, useRouter } from "next/navigation";
 import { ExtendedWeightCard } from "@/components/Weight/WeightCard/Extended";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Weight } from "@/types/Weight";
 import { Dataset } from "@/types/Dataset";
 import { Owner } from "@/types/Owner";
@@ -13,28 +14,35 @@ import { SingleChart } from "@/components/Dataset/DatasetEvaluationChart/Single"
 export default function Page() {
   const params = useParams();
   const weights_id = params?.id as string;
-  if (!weights_id) return <p>Loading...</p>;
+  const router = useRouter();
+
   const [weight, setWeight] = useState<Weight | null>(null);
+  const [datasets, setDatasets] = useState<Dataset[]>([]);
+  const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
+
   const [weightLoading, setWeightLoading] = useState(true);
   const [datasetsLoading, setDatasetsLoading] = useState(true);
   const [evaluationLoading, setEvaluationLoading] = useState(false);
-  const [datasets, setDatasets] = useState<Dataset[]>([]);
-  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
-  const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
-  const handleDatasetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value;
-    const dataset =
-      value === "default"
-        ? null
-        : datasets.find((ds) => ds.uniqueIdentifier === value) || null;
-    setSelectedDataset(dataset);
-  };
-  const router = useRouter();
-  const handleViewHistory = () => {
-    router.push(`/weight/history/${weights_id}`);
-  };
 
-  const fetchDatasets = async () => {
+  // Fetch weight details
+  const fetchWeight = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/weights/${weights_id}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch weight");
+      const data: Weight = await response.json();
+      setWeight(data);
+    } catch (error) {
+      console.error("Error fetching weight:", error);
+    } finally {
+      setWeightLoading(false);
+    }
+  }, [weights_id]);
+
+  // Fetch datasets related to the weight
+  const fetchDatasets = useCallback(async () => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/weights/evaluation/${weights_id}`
@@ -47,79 +55,87 @@ export default function Page() {
     } finally {
       setDatasetsLoading(false);
     }
-  };
-  const fetchWeight = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/weights/${weights_id}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch weight");
-      const data: Weight = await response.json();
-      setWeight(data);
-    } catch (error) {
-      console.error("Error fetching weight:", error);
-    }
-  };
+  }, [weights_id]);
 
-  const fetchOwner = async () => {
+  // Fetch owner details for the weight
+  const fetchOwner = useCallback(async () => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/weights/${weights_id}/user`
       );
       if (!response.ok) throw new Error("Failed to fetch owner");
-
       const owner: Owner = await response.json();
-
-      setWeight((prevWeight) => {
-        if (prevWeight) {
-          return {
-            ...prevWeight,
-            creator: owner.username,
-          };
-        }
-        return prevWeight;
-      });
+      setWeight((prev) =>
+        prev ? { ...prev, creator: owner.username } : null
+      );
     } catch (error) {
       console.error("Error fetching owner:", error);
-    } finally {
-      setWeightLoading(false);
     }
-  };
+  }, [weights_id]);
 
-  const fetchPerformance = async (dataset_id: string) => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/weights/evaluation/${weights_id}/${dataset_id}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch performance");
-      const data: Evaluation = await response.json();
-      setEvaluation(data);
-    } catch (error) {
-      console.error("Error fetching performance:", error);
-    } finally {
-      setEvaluationLoading(false);
-    }
-  };
+  // Fetch performance details for a selected dataset
+  const fetchPerformance = useCallback(
+    async (dataset_id: string) => {
+      try {
+        setEvaluationLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/weights/evaluation/${weights_id}/${dataset_id}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch performance");
+        const data: Evaluation = await response.json();
+        setEvaluation(data);
+      } catch (error) {
+        console.error("Error fetching performance:", error);
+      } finally {
+        setEvaluationLoading(false);
+      }
+    },
+    [weights_id]
+  );
 
+  // Fetch data when weight ID changes
+  useEffect(() => {
+    if (!weights_id) return;
+    setWeightLoading(true);
+    setDatasetsLoading(true);
+    fetchWeight();
+    fetchOwner();
+    fetchDatasets();
+  }, [weights_id, fetchWeight, fetchOwner, fetchDatasets]);
+
+  // Fetch performance when a dataset is selected
   useEffect(() => {
     if (!selectedDataset) {
       setEvaluation(null);
       return;
     }
     fetchPerformance(selectedDataset.uniqueIdentifier);
-  }, [selectedDataset]);
+  }, [selectedDataset, fetchPerformance]);
 
-  useEffect(() => {
-    if (!weights_id) return;
-    fetchWeight();
-    fetchOwner();
-    fetchDatasets();
-  }, [weights_id]);
+  // Handle dataset selection
+  const handleDatasetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
+    const dataset =
+      value === "default"
+        ? null
+        : datasets.find((ds) => ds.uniqueIdentifier === value) || null;
+    setSelectedDataset(dataset);
+  };
 
-  if (weightLoading || datasetsLoading)
+  // Handle navigation to view history
+  const handleViewHistory = () => {
+    router.push(`/weight/history/${weights_id}`);
+  };
+
+  // Loading state
+  if (weightLoading || datasetsLoading) {
     return <div className="text-center py-4">Loading...</div>;
-  if (!weight)
+  }
+
+  // No weight data
+  if (!weight) {
     return <div className="text-center py-4">No weight data available</div>;
+  }
 
   return (
     <div className="px-6 space-y-4">
@@ -142,21 +158,15 @@ export default function Page() {
           className="border border-gray-300 rounded-lg py-1 px-2"
           onChange={handleDatasetChange}
         >
-          {datasets.length > 0 ? (
-            <>
-              <option value="default">Select dataset</option>
-              {datasets?.map((dataset) => (
-                <option
-                  key={dataset.uniqueIdentifier}
-                  value={dataset.uniqueIdentifier}
-                >
-                  {dataset.uniqueIdentifier}
-                </option>
-              ))}
-            </>
-          ) : (
-            <option disabled>No datasets available</option>
-          )}
+          <option value="default">Select a dataset</option>
+          {datasets.map((dataset) => (
+            <option
+              key={dataset.uniqueIdentifier}
+              value={dataset.uniqueIdentifier}
+            >
+              {dataset.uniqueIdentifier}
+            </option>
+          ))}
         </select>
         {selectedDataset && evaluation && !evaluationLoading && (
           <div>

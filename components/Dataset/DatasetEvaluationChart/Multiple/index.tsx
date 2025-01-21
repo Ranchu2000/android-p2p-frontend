@@ -7,7 +7,6 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import { Dataset } from "@/types/Dataset";
 import { Evaluation } from "@/types/DatasetEvaluation";
 import { Weight } from "@/types/Weight";
 import { useState } from "react";

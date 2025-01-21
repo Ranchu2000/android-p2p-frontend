@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { CompactWeightCard } from "@/components/Weight/WeightCard/Compact";
 import { Weight } from "@/types/Weight";
-import Link from "next/link";
 
 export default function Page() {
   const [weights, setWeights] = useState<Weight[]>([]);

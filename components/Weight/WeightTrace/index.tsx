@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from "react";
 import NeoVis, { NeovisConfig } from "neovis.js";
 import { useRouter } from "next/navigation";

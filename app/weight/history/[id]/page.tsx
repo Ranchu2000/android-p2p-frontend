@@ -1,6 +1,12 @@
 "use client";
-import WeightTrace from "@/components/Weight/WeightTrace";
+import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
+
+// Dynamically import WeightTrace with SSR disabled.
+const WeightTraceNoSSR = dynamic(() => import("@/components/Weight/WeightTrace"), {
+  ssr: false,
+});
+
 export default function Page() {
   const params = useParams();
   const weights_id = params?.id as string;
@@ -10,7 +16,7 @@ export default function Page() {
       <h1 style={{ color: "#34495e", fontFamily: "Arial, sans-serif" }}>
         Weight Historical Trace
       </h1>
-      <WeightTrace weightId={weights_id} />
+      <WeightTraceNoSSR weightId={weights_id} />
     </div>
   );
 }

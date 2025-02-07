@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useEffect, useRef } from "react";
 import NeoVis, { NeovisConfig } from "neovis.js";
 import { useRouter } from "next/navigation";
@@ -80,13 +78,13 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
             },
           },
         },
-        CREATED_BY: {
+        COMBINES_WITH: {
           [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
             function: {
               title: (relationship: any) => generateTooltip(relationship),
             },
             static: {
-              label: "Created By",
+              label: "Combines With",
             },
           },
         },
@@ -110,23 +108,22 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
             },
           },
         },
-        COMBINES_WITH: {
+
+        CREATED_BY: {
           [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
             function: {
               title: (relationship: any) => generateTooltip(relationship),
             },
             static: {
-              label: "Combines With",
+              label: "Created By",
             },
           },
         },
       },
-      initialCypher: `OPTIONAL MATCH path = (n)-[r*1..]->(w:Weight {uniqueIdentifier: '${weightId}'})
-        WITH DISTINCT nodes(path) AS nodes, relationships(path) AS relationships
-        RETURN nodes, relationships
-        UNION
-        MATCH (w:Weight {uniqueIdentifier: '${weightId}'})
-        RETURN [w] AS nodes, [] AS relationships`,
+      initialCypher: `MATCH path = (start)-[r*1..3]->(w:Weight {uniqueIdentifier: '${weightId}'})
+      UNWIND nodes(path) AS n
+      UNWIND relationships(path) AS rel
+      RETURN DISTINCT n, rel`,
     };
 
     vizInstanceRef.current = new NeoVis(config);
@@ -164,4 +161,4 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
   );
 };
 
-export default WeightTrace; // Export as default
+export default WeightTrace;

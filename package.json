@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "neovis.js": "^2.1.0",
+    "neovis.js": "github:darylfung96/neovis.js",
     "next": "15.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

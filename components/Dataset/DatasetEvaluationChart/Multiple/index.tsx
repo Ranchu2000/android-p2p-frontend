@@ -1,7 +1,15 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+} from "recharts";
 import { Evaluation } from "@/types/DatasetEvaluation";
 import { Weight } from "@/types/Weight";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface PerformanceChartProps {
   weights: Weight[];
@@ -18,6 +26,17 @@ export function MultipleChart({ weights, evaluation }: PerformanceChartProps) {
         new Date(b.weight.last_trained).getTime()
     );
 
+  const [chartWidth, setChartWidth] = useState(500);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      setChartWidth(window.innerWidth > 600 ? 500 : window.innerWidth - 80);
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
   const data = sortedData.map(({ weight, evaluation }) => ({
     uniqueId: weight.uniqueIdentifier.slice(0, 8),
     performance: (evaluation[metric] ?? 0) * 100,
@@ -45,46 +64,48 @@ export function MultipleChart({ weights, evaluation }: PerformanceChartProps) {
       <h2 className="text-lg font-semibold text-gray-700 mb-4 text-center">
         Model Performance
       </h2>
-      <BarChart
-        width={500}
-        height={400}
-        data={data}
-        margin={{ top: 20, right: 30, left: 30, bottom: 80 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis
-          dataKey="uniqueId"
-          tick={{ fill: "#F97316", fontSize: 12, fontWeight: 500 }}
-          label={{
-            value: "Dataset Identifier",
-            position: "insideBottom",
-            dy: 10,
-            fill: "#F97316",
-            fontSize: 14,
-            fontWeight: 600,
-          }}
-        />
-        <YAxis
-          tick={{ fill: "#F97316", fontSize: 12, fontWeight: 500 }}
-          label={{
-            value: `${metric.charAt(0).toUpperCase() + metric.slice(1)} (%)`,
-            angle: -90,
-            position: "insideLeft",
-            dx: -10,
-            dy: 40,
-            fill: "#F97316",
-            fontSize: 14,
-            fontWeight: 600,
-          }}
-        />
-        <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
-        <Bar
-          dataKey="performance"
-          fill="#F97316"
-          name={`${metric.charAt(0).toUpperCase() + metric.slice(1)}`}
-          radius={[4, 4, 0, 0]}
-        />
-      </BarChart>
+      <ResponsiveContainer width="110%" height={400}>
+        <BarChart
+          width={chartWidth}
+          height={400}
+          data={data}
+          margin={{ top: 20, right: 30, left: 30, bottom: 80 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="uniqueId"
+            tick={{ fill: "#F97316", fontSize: 12, fontWeight: 500 }}
+            label={{
+              value: "Dataset Identifier",
+              position: "insideBottom",
+              dy: 10,
+              fill: "#F97316",
+              fontSize: 14,
+              fontWeight: 600,
+            }}
+          />
+          <YAxis
+            tick={{ fill: "#F97316", fontSize: 12, fontWeight: 500 }}
+            label={{
+              value: `${metric.charAt(0).toUpperCase() + metric.slice(1)} (%)`,
+              angle: -90,
+              position: "insideLeft",
+              dx: -10,
+              dy: 40,
+              fill: "#F97316",
+              fontSize: 14,
+              fontWeight: 600,
+            }}
+          />
+          <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
+          <Bar
+            dataKey="performance"
+            fill="#F97316"
+            name={`${metric.charAt(0).toUpperCase() + metric.slice(1)}`}
+            radius={[4, 4, 0, 0]}
+          />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

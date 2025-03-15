@@ -1,12 +1,4 @@
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { Evaluation } from "@/types/DatasetEvaluation";
 import { Weight } from "@/types/Weight";
 import { useState } from "react";
@@ -33,7 +25,7 @@ export function MultipleChart({ weights, evaluation }: PerformanceChartProps) {
 
   return (
     <div
-      style={{ width: "100%", height: 450 }} // Increased height for legend space
+      style={{ width: "100%", height: 450 }}
       className="flex flex-col items-center p-6 bg-white shadow-lg rounded-lg border border-gray-200"
     >
       <div className="flex justify-center mb-4">
@@ -86,7 +78,6 @@ export function MultipleChart({ weights, evaluation }: PerformanceChartProps) {
           }}
         />
         <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
-        {/* <Legend /> */}
         <Bar
           dataKey="performance"
           fill="#F97316"

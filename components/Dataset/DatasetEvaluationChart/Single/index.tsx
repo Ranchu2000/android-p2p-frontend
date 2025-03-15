@@ -5,7 +5,6 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-  Legend,
 } from "recharts";
 import { Dataset } from "@/types/Dataset";
 import { Evaluation } from "@/types/DatasetEvaluation";
@@ -62,7 +61,6 @@ export function SingleChart({ dataset, evaluation }: PerformanceChartProps) {
           }}
         />
         <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
-        {/* <Legend /> */}
         <Bar
           dataKey="performance"
           fill="#F97316"

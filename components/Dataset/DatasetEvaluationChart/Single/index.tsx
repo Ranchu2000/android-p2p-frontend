@@ -15,10 +15,7 @@ interface PerformanceChartProps {
   evaluation: Evaluation;
 }
 
-export function SingleChart({
-  dataset,
-  evaluation,
-}: PerformanceChartProps) {
+export function SingleChart({ dataset, evaluation }: PerformanceChartProps) {
   // Prepare data for Recharts, combining class_labels and class_performance
   const data = dataset.class_labels.map((label, index) => ({
     classLabel: label,
@@ -30,7 +27,7 @@ export function SingleChart({
       className=" flex flex-col items-center p-6 bg-white shadow-lg rounded-lg border border-gray-200"
     >
       <h2 className="text-lg font-semibold text-gray-700 mb-4 text-center">
-        Class Performance Evaluation
+        Class Performance
       </h2>
       <BarChart
         width={500}
@@ -45,7 +42,7 @@ export function SingleChart({
           label={{
             value: "Class Labels",
             position: "insideBottom",
-            dy: 4,
+            dy: 10,
             fill: "#F97316", // Orange axis label
             fontSize: 14,
             fontWeight: 600,
@@ -65,7 +62,7 @@ export function SingleChart({
           }}
         />
         <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
-        <Legend />
+        {/* <Legend /> */}
         <Bar
           dataKey="performance"
           fill="#F97316"

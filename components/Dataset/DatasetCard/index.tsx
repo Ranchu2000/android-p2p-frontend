@@ -15,7 +15,7 @@ export function DatasetCard({ dataset }: DatasetCardProps) {
       onClick={() => router.push(`/dataset/${dataset.uniqueIdentifier}`)}
       className="w-full p-6 bg-white shadow-lg rounded-lg border border-gray-200 space-y-4 hover:bg-gray-100 transition duration-150 ease-in-out cursor-pointer"
     >
-      <h1 className="text-xl font-bold">{dataset.uniqueIdentifier}</h1>
+      <h1 className="text-xl font-bold">Dataset Name: {dataset.uniqueIdentifier}</h1>
       <div>
         <p>
           <strong>Model Task:</strong> {dataset.model_task}

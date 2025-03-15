@@ -6,15 +6,18 @@ interface WeightCardProps {
 }
 
 export function ExtendedWeightCard({ weight }: WeightCardProps) {
+  const weightSizeMB = (weight.weight_size / (1024 * 1024)).toFixed(2);
   return (
     <div className="w-full p-6 bg-white shadow-lg rounded-lg border border-gray-200 space-y-4">
-      <h1 className="text-xl font-bold">{weight.uniqueIdentifier}</h1>
+      <h1 className="text-xl font-bold">
+        Model Name: {weight.uniqueIdentifier}
+      </h1>
       <div>
         <p>
           <strong>Model Task:</strong> {weight.model_task}
         </p>
         <p>
-          <strong>Size:</strong> {weight.weight_size} MB
+          <strong>Size:</strong> {weightSizeMB} MB
         </p>
         <p>
           <strong>Description:</strong>{" "}

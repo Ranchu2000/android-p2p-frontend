@@ -122,9 +122,11 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
         },
       },
       initialCypher: `MATCH path = (start)-[r*1..3]->(w:Weight {uniqueIdentifier: '${weightId}'})
-      UNWIND nodes(path) AS n
-      UNWIND relationships(path) AS rel
-      RETURN DISTINCT n, rel`,
+      WITH collect(DISTINCT r) AS rels, nodes(path) AS nodes
+      UNWIND rels AS rel
+      UNWIND nodes AS n
+      RETURN DISTINCT n, rel
+      `,
     };
 
     vizInstanceRef.current = new NeoVis(config);

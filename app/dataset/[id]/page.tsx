@@ -105,6 +105,7 @@ export default function Page() {
 
   return (
     <div className="px-6 space-y-4">
+      <h1 className="text-xl font-bold text-center">Dataset Information</h1>
       <DatasetCard dataset={dataset} />
       <MultipleChart
         weights={evaluation.map((e) => e.weight)}

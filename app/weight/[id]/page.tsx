@@ -65,9 +65,7 @@ export default function Page() {
       );
       if (!response.ok) throw new Error("Failed to fetch owner");
       const owner: Owner = await response.json();
-      setWeight((prev) =>
-        prev ? { ...prev, creator: owner.username } : null
-      );
+      setWeight((prev) => (prev ? { ...prev, creator: owner.username } : null));
     } catch (error) {
       console.error("Error fetching owner:", error);
     }
@@ -164,7 +162,7 @@ export default function Page() {
               key={dataset.uniqueIdentifier}
               value={dataset.uniqueIdentifier}
             >
-              {dataset.uniqueIdentifier}
+              {dataset.uniqueIdentifier.slice(0, 8)}
             </option>
           ))}
         </select>

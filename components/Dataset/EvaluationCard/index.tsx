@@ -8,11 +8,15 @@ export function EvaluationCard({ evaluation }: EvaluationCardProps) {
     <div className="w-full p-6 bg-white shadow-lg rounded-lg border border-gray-200 space-y-4">
       <p>
         <strong>Accuracy:</strong>{" "}
-        <span className="text-xl font-bold">{evaluation.accuracy * 100}%</span>
+        <span className="text-xl font-bold">
+          {(evaluation.accuracy * 100).toFixed(2)}%
+        </span>
       </p>
       <p>
         <strong>Precision:</strong>{" "}
-        <span className="text-xl font-bold">{evaluation.precision * 100}%</span>
+        <span className="text-xl font-bold">
+          {(evaluation.precision * 100).toFixed(2)}%
+        </span>
       </p>
       <p>
         <strong>Evaluation Date:</strong>{" "}

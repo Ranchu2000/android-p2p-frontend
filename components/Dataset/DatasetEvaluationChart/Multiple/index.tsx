@@ -27,7 +27,7 @@ export function MultipleChart({ weights, evaluation }: PerformanceChartProps) {
     );
 
   const data = sortedData.map(({ weight, evaluation }) => ({
-    uniqueId: weight.uniqueIdentifier,
+    uniqueId: weight.uniqueIdentifier.slice(0, 8),
     performance: (evaluation[metric] ?? 0) * 100,
   }));
 
@@ -51,8 +51,7 @@ export function MultipleChart({ weights, evaluation }: PerformanceChartProps) {
       </div>
 
       <h2 className="text-lg font-semibold text-gray-700 mb-4 text-center">
-        Class Performance Evaluation (
-        {metric.charAt(0).toUpperCase() + metric.slice(1)})
+        Model Performance
       </h2>
       <BarChart
         width={500}
@@ -67,7 +66,7 @@ export function MultipleChart({ weights, evaluation }: PerformanceChartProps) {
           label={{
             value: "Dataset Identifier",
             position: "insideBottom",
-            dy: 4,
+            dy: 10,
             fill: "#F97316",
             fontSize: 14,
             fontWeight: 600,
@@ -87,7 +86,7 @@ export function MultipleChart({ weights, evaluation }: PerformanceChartProps) {
           }}
         />
         <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
-        <Legend />
+        {/* <Legend /> */}
         <Bar
           dataKey="performance"
           fill="#F97316"

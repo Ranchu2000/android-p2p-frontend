@@ -11,15 +11,31 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
   const vizRef = useRef<HTMLDivElement>(null);
   const vizInstanceRef = useRef<any>(null);
   const router = useRouter();
+  const formatUUID = (uuid: string) =>
+    uuid.length > 8 ? uuid.substring(0, 8) : uuid;
+  const truncateText = (text: string, maxLength: number = 20) => {
+    if (!text) return "";
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
+  };
 
   const generateTooltip = (relationship: any) => {
-    let titleString = "Properties:\n";
-    if (relationship.properties) {
-      Object.entries(relationship.properties).forEach(([key, value]) => {
-        titleString += `${key}: ${value}\n`;
-      });
+    if (!relationship.properties) return "No properties available.";
+    let tooltipContent = "";
+    let rsType = relationship.type;
+    if (rsType == "FINETUNED_BY") {
+      tooltipContent += "Finetune Properties: \n";
+    } else if (rsType == "COMBINES_WITH") {
+      tooltipContent += "Federated Learn Properties: \n";
     }
-    return titleString;
+    Object.entries(relationship.properties).forEach(([key, value]) => {
+      if (key === "performance_json") return;
+
+      tooltipContent += `${key}: ${truncateText(String(value), 8)}\n`;
+    });
+
+    return tooltipContent;
   };
 
   const renderVisualization = () => {
@@ -36,14 +52,29 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
         },
       },
       visConfig: {
+        layout: {
+          hierarchical: {
+            enabled: true,
+            direction: "UD",
+          },
+        },
+        interaction: {
+          hover: true,
+          tooltipDelay: 100,
+        },
         nodes: {
           shape: "dot",
-          size: 10,
+          font: {
+            size: 15,
+            color: "#0000000",
+            vadjust: -60,
+          },
         },
         edges: {
           arrows: {
             to: { enabled: true },
           },
+          smooth: false,
         },
       },
       labels: {
@@ -60,32 +91,28 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
         Weight: {
           label: "uniqueIdentifier",
           [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
+            function: {
+              label: (node: any) =>
+                formatUUID(node.properties.uniqueIdentifier),
+            },
             static: {
               group: "weight",
               color: "#e74c3c",
-              size: 10,
+              size: 45,
             },
           },
         },
       },
       relationships: {
-        OWNED_BY: {
-          [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
-            function: {
-              title: (relationship: any) => generateTooltip(relationship),
-            },
-            static: {
-              label: "Owned By",
-            },
-          },
-        },
         COMBINES_WITH: {
           [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
             function: {
               title: (relationship: any) => generateTooltip(relationship),
             },
             static: {
-              label: "Combines With",
+              label: "",
+              color: "#e74c3c",
+              thickness: 2,
             },
           },
         },
@@ -105,32 +132,19 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
               title: (relationship: any) => generateTooltip(relationship),
             },
             static: {
-              label: "Finetuned By",
-            },
-          },
-        },
-
-        CREATED_BY: {
-          [NeoVis.NEOVIS_ADVANCED_CONFIG]: {
-            function: {
-              title: (relationship: any) => generateTooltip(relationship),
-            },
-            static: {
-              label: "Created By",
+              label: "",
+              color: "#3498db",
+              thickness: 2,
             },
           },
         },
       },
-      initialCypher: `MATCH path = (start)-[r*1..3]->(w:Weight {uniqueIdentifier: '${weightId}'})
-      WITH collect(DISTINCT r) AS rels, nodes(path) AS nodes
-      UNWIND rels AS rel
-      UNWIND nodes AS n
-      RETURN DISTINCT n, rel
-      `,
+      initialCypher: `MATCH (w:Weight {uniqueIdentifier: '${weightId}'}) MATCH (n)-[r]->(m) WHERE type(r) IN ['COMBINES_WITH', 'FINETUNED_BY'] AND ((w)-[*1..]-(n) OR (w)-[*1..]-(m)) RETURN DISTINCT n, r, m UNION MATCH (w:Weight {uniqueIdentifier: '${weightId}'}) OPTIONAL MATCH (w)-[r]->(x) WHERE type(r) IN ['COMBINES_WITH', 'FINETUNED_BY'] WITH w, count(r) AS relCount WHERE relCount = 0 RETURN w AS n, null AS r, null AS m`, //sorry this had to be done
     };
 
     vizInstanceRef.current = new NeoVis(config);
     vizInstanceRef.current.render();
+
     vizInstanceRef.current?.registerOnEvent("clickNode", (event: any) => {
       const node = event.node.raw;
       const labels = node.labels;
@@ -144,22 +158,73 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
         router.push(`/dataset/${nodeLabel}`);
       }
     });
+    vizInstanceRef.current?.registerOnEvent("clickEdge", (event: any) => {
+      const edge = event.edge.raw;
+      const network = vizInstanceRef.current.network;
+      network.fit({ scale: 1 });
+      if (edge.properties && edge.properties.dataset) {
+        const datasetId = edge.properties.dataset;
+        router.push(`/dataset/${datasetId}`);
+      }
+    });
   };
 
   useEffect(() => {
     renderVisualization();
+    console.log("weightid", weightId);
     return () => {
       vizInstanceRef.current?.clearNetwork();
     };
   }, [weightId]);
 
   return (
-    <div>
+    <div style={{ position: "relative" }}>
       <div
         id="viz"
         ref={vizRef}
         style={{ width: "900px", height: "700px" }}
       ></div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          right: "20px",
+          background: "#fff",
+          padding: "10px",
+          borderRadius: "5px",
+          boxShadow: "0 0 5px rgba(0,0,0,0.3)",
+          zIndex: 1000,
+        }}
+      >
+        <div
+          style={{ display: "flex", alignItems: "center", marginBottom: "5px" }}
+        >
+          <span
+            style={{
+              background: "#3498db",
+              display: "inline-block",
+              width: "15px",
+              height: "15px",
+              marginRight: "5px",
+            }}
+          ></span>
+          <span>Combines With</span>
+        </div>
+        <div
+          style={{ display: "flex", alignItems: "center", marginBottom: "5px" }}
+        >
+          <span
+            style={{
+              background: "#e74c3c",
+              display: "inline-block",
+              width: "15px",
+              height: "15px",
+              marginRight: "5px",
+            }}
+          ></span>
+          <span>Finetuned By</span>
+        </div>
+      </div>
     </div>
   );
 };

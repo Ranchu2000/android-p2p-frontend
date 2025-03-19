@@ -23,7 +23,7 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
   const generateTooltip = (relationship: any) => {
     if (!relationship.properties) return "No properties available.";
     let tooltipContent = "";
-    let rsType = relationship.type;
+    const rsType = relationship.type;
     if (rsType == "FINETUNED_BY") {
       tooltipContent += "Finetune Properties: \n";
     } else if (rsType == "COMBINES_WITH") {

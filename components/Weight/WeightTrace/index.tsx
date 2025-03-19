@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import NeoVis, { NeovisConfig } from "neovis.js";
 import { useRouter } from "next/navigation";
 
@@ -11,6 +11,7 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
   const vizRef = useRef<HTMLDivElement>(null);
   const vizInstanceRef = useRef<any>(null);
   const router = useRouter();
+  const [recursionDepth, setRecursionDepth] = useState<number>(2);
   const formatUUID = (uuid: string) =>
     uuid.length > 8 ? uuid.substring(0, 8) : uuid;
   const truncateText = (text: string, maxLength: number = 20) => {
@@ -47,7 +48,7 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
         serverUser: process.env.NEXT_PUBLIC_NEO4J_SERVER_USER,
         serverPassword: process.env.NEXT_PUBLIC_NEO4J_SERVER_PASSWORD,
         driverConfig: {
-          encrypted: "ENCRYPTION_ON",
+          encrypted: "ENCRYPTION_OFF",
           trust: "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES",
         },
       },
@@ -139,7 +140,7 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
           },
         },
       },
-      initialCypher: `MATCH (w:Weight {uniqueIdentifier: '${weightId}'}) MATCH (n)-[r]->(m) WHERE type(r) IN ['COMBINES_WITH', 'FINETUNED_BY'] AND ((w)-[*1..]-(n) OR (w)-[*1..]-(m)) RETURN DISTINCT n, r, m UNION MATCH (w:Weight {uniqueIdentifier: '${weightId}'}) OPTIONAL MATCH (w)-[r]->(x) WHERE type(r) IN ['COMBINES_WITH', 'FINETUNED_BY'] WITH w, count(r) AS relCount WHERE relCount = 0 RETURN w AS n, null AS r, null AS m`, //sorry this had to be done
+      initialCypher: `MATCH (w:Weight {uniqueIdentifier: '${weightId}'}) MATCH path = (n)-[rels*1..${recursionDepth}]->(w) WHERE ALL(rel IN rels WHERE type(rel) IN ['COMBINES_WITH', 'FINETUNED_BY']) WITH nodes(path) AS ns, rels AS rs UNWIND range(0, size(ns)-2) AS i RETURN DISTINCT ns[i] AS n, rs[i] AS r, ns[i+1] AS m UNION MATCH (w:Weight {uniqueIdentifier: '${weightId}'}) OPTIONAL MATCH (w)-[r]->(x) WHERE type(r) IN ['COMBINES_WITH', 'FINETUNED_BY'] WITH w, count(r) AS relCount WHERE relCount = 0 RETURN w AS n, null AS r, null AS m`, //sorry this had to be done
     };
 
     vizInstanceRef.current = new NeoVis(config);
@@ -175,10 +176,21 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
     return () => {
       vizInstanceRef.current?.clearNetwork();
     };
-  }, [weightId]);
+  }, [weightId, recursionDepth]);
 
   return (
     <div style={{ position: "relative" }}>
+      <div style={{ marginBottom: "10px" }}>
+        <label htmlFor="depthRange">Recursion Depth: {recursionDepth}</label>
+        <input
+          id="depthRange"
+          type="range"
+          min="0"
+          max="5"
+          value={recursionDepth}
+          onChange={(e) => setRecursionDepth(Number(e.target.value))}
+        />
+      </div>
       <div
         id="viz"
         ref={vizRef}

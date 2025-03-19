@@ -48,7 +48,7 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
         serverUser: process.env.NEXT_PUBLIC_NEO4J_SERVER_USER,
         serverPassword: process.env.NEXT_PUBLIC_NEO4J_SERVER_PASSWORD,
         driverConfig: {
-          encrypted: "ENCRYPTION_OFF",
+          encrypted: "ENCRYPTION_ON",
           trust: "TRUST_SYSTEM_CA_SIGNED_CERTIFICATES",
         },
       },

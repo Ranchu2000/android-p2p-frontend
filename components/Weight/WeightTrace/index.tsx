@@ -213,7 +213,7 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
         >
           <span
             style={{
-              background: "#3498db",
+              background: "#e74c3c",
               display: "inline-block",
               width: "15px",
               height: "15px",
@@ -227,7 +227,7 @@ const WeightTrace = ({ weightId }: WeightTreeProps) => {
         >
           <span
             style={{
-              background: "#e74c3c",
+              background: "#3498db",
               display: "inline-block",
               width: "15px",
               height: "15px",
